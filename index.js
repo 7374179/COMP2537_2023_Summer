@@ -17,7 +17,9 @@ const app = express();
 const Joi = require("joi");
 
 
-const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+// const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+const expireTime = 1 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -72,66 +74,66 @@ app.get('/', (req,res) => {
     }
 });
 
-app.get('/nosql-injection', async (req,res) => {
-	var username = req.query.user;
+// app.get('/nosql-injection', async (req,res) => {
+// 	var username = req.query.user;
 
-	if (!username) {
-		res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
-		return;
-	}
-	console.log("user: "+username);
+// 	if (!username) {
+// 		res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
+// 		return;
+// 	}
+// 	console.log("user: "+username);
 
-	const schema = Joi.string().max(20).required();
-	const validationResult = schema.validate(username);
+// 	const schema = Joi.string().max(20).required();
+// 	const validationResult = schema.validate(username);
 
-	//If we didn't use Joi to validate and check for a valid URL parameter below
-	// we could run our userCollection.find and it would be possible to attack.
-	// A URL parameter of user[$ne]=name would get executed as a MongoDB command
-	// and may result in revealing information about all users or a successful
-	// login without knowing the correct password.
-	if (validationResult.error != null) {  
-	   console.log(validationResult.error);
-	   res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-	   return;
-	}	
+// 	//If we didn't use Joi to validate and check for a valid URL parameter below
+// 	// we could run our userCollection.find and it would be possible to attack.
+// 	// A URL parameter of user[$ne]=name would get executed as a MongoDB command
+// 	// and may result in revealing information about all users or a successful
+// 	// login without knowing the correct password.
+// 	if (validationResult.error != null) {  
+// 	   console.log(validationResult.error);
+// 	   res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+// 	   return;
+// 	}	
 
-	const result = await userCollection.find({username: username}).project({username: 1, password: 1, _id: 1}).toArray();
+// 	const result = await userCollection.find({username: username}).project({username: 1, password: 1, _id: 1}).toArray();
 
-	console.log(result);
+// 	console.log(result);
 
-    res.send(`<h1>Hello ${username}</h1>`);
-});
+//     res.send(`<h1>Hello ${username}</h1>`);
+// });
 
-app.get('/about', (req,res) => {
-    var color = req.query.color;
+// app.get('/about', (req,res) => {
+//     var color = req.query.color;
 
-    res.send("<h1 style='color:"+color+";'>Patrick Guichon</h1>");
-});
+//     res.send("<h1 style='color:"+color+";'>Patrick Guichon</h1>");
+// });
 
-app.get('/contact', (req,res) => {
-    var missingEmail = req.query.missing;
-    var html = `
-        email address:
-        <form action='/submitEmail' method='post'>
-            <input name='email' type='text' placeholder='email'>
-            <button>Submit</button>
-        </form>
-    `;
-    if (missingEmail) {
-        html += "<br> email is required";
-    }
-    res.send(html);
-});
+// app.get('/contact', (req,res) => {
+//     var missingEmail = req.query.missing;
+//     var html = `
+//         email address:
+//         <form action='/submitEmail' method='post'>
+//             <input name='email' type='text' placeholder='email'>
+//             <button>Submit</button>
+//         </form>
+//     `;
+//     if (missingEmail) {
+//         html += "<br> email is required";
+//     }
+//     res.send(html);
+// });
 
-app.post('/submitEmail', (req,res) => {
-    var email = req.body.email;
-    if (!email) {
-        res.redirect('/contact?missing=1');
-    }
-    else {
-        res.send("Thanks for subscribing with your email: "+email);
-    }
-});
+// app.post('/submitEmail', (req,res) => {
+//     var email = req.body.email;
+//     if (!email) {
+//         res.redirect('/contact?missing=1');
+//     }
+//     else {
+//         res.send("Thanks for subscribing with your email: "+email);
+//     }
+// });
 
 
 app.get('/signup', (req,res) => {
@@ -179,7 +181,7 @@ app.post('/submitUser', async (req,res) => {
 	   console.log(validationResult.error);
        var html = `
        ${validationResult.error.details[0].message}
-       <div><a href="/signup"><button>signup</button></a></div>
+       <div><a href="/signup">signup</a></div>
    `;
       res.send(html);
 
@@ -197,9 +199,21 @@ app.post('/submitUser', async (req,res) => {
         });
 	console.log("Inserted user");
 
+    req.session.authenticated = true; 
+    req.session.username = username;
+	req.session.email = email;
+
+
     // var html = "successfully created user";
     // res.send(html);    
-    res.redirect("/login");
+
+    // req.session.user = {
+    //     username: username,
+    //     email: email
+    //   }
+
+    // res.redirect("/login");
+    res.redirect("/members");
 });
 
 app.post('/loggingin', async (req,res) => {
@@ -242,10 +256,19 @@ app.post('/loggingin', async (req,res) => {
 		req.session.email = email;
 		req.session.cookie.maxAge = expireTime;
 
-		// res.redirect('/loggedIn');
-        res.redirect('/');
-
+        if(req.session.redirectTo){ // 로그인 이전에 요청했던 페이지가 있다면 해당 페이지로 이동합니다.
+			res.redirect(req.session.redirectTo);
+			delete req.session.redirectTo;
+		}else{
+			// res.redirect('/loggedIn');
+			res.redirect('/members');
+		}
 		return;
+
+		// res.redirect('/loggedIn');
+        // res.redirect('/members');
+
+		// return;
 	}
 	else {
 		console.log("incorrect password");
@@ -311,20 +334,20 @@ app.get('/logout', (req,res) => {
 });
 
 
-app.get('/cat/:id', (req,res) => {
+// app.get('/cat/:id', (req,res) => {
 
-    var cat = req.params.id;
+//     var cat = req.params.id;
 
-    if (cat == 1) {
-        res.send("Fluffy: <img src='/fluffy.gif' style='width:250px;'>");
-    }
-    else if (cat == 2) {
-        res.send("Socks: <img src='/socks.gif' style='width:250px;'>");
-    }
-    else {
-        res.send("Invalid cat id: "+cat);
-    }
-});
+//     if (cat == 1) {
+//         res.send("Fluffy: <img src='/fluffy.gif' style='width:250px;'>");
+//     }
+//     else if (cat == 2) {
+//         res.send("Socks: <img src='/socks.gif' style='width:250px;'>");
+//     }
+//     else {
+//         res.send("Invalid cat id: "+cat);
+//     }
+// });
 
 
 app.use(express.static(__dirname + "/public"));
