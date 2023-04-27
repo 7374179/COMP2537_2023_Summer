@@ -155,7 +155,7 @@ app.get('/login', (req,res) => {
     log in
     <form action='/loggingin' method='post'>
     <input name='email' type='text' placeholder='email'><br>
-    <input name='password' type='password' placeholder='password'>
+    <input name='password' type='password' placeholder='password'><br>
     <button>Submit</button>
     </form>
     `;
@@ -256,7 +256,7 @@ app.post('/loggingin', async (req,res) => {
 		req.session.email = email;
 		req.session.cookie.maxAge = expireTime;
 
-        if(req.session.redirectTo){ // 로그인 이전에 요청했던 페이지가 있다면 해당 페이지로 이동합니다.
+        if(req.session.redirectTo){
 			res.redirect(req.session.redirectTo);
 			delete req.session.redirectTo;
 		}else{
