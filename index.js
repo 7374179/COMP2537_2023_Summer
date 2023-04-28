@@ -294,7 +294,7 @@ app.get('/loggedin', (req,res) => {
 
 app.get('/members', (req, res) => {
     if(!req.session.username){
-        res.redirect('/');
+        res.redirect('/login');
         return;
     }
 
