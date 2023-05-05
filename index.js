@@ -14,6 +14,8 @@ const app = express();
 
 const Joi = require("joi");
 
+const url = require('url');
+
 const { ObjectId } = require('mongodb');
 
 const expireTime = 60 * 60 * 1000; //expires after 1 hour  (minutes * seconds * millis)
@@ -33,6 +35,14 @@ var {database} = include('databaseConnection');
 const userCollection = database.db(mongodb_database).collection('users');
 
 app.set('view engine', 'ejs');
+
+const navLinks = [
+	{name: "Home", link: "/"},
+	{name: "Members", link: "/members"},
+	{name: "Login", link: "/login"},
+	{name: "Admin", link: "/admin"},
+	{name: "404", link: "/dne"}
+]
 
 app.use(express.urlencoded({extended: false}));
 
@@ -91,6 +101,8 @@ function adminAuthorization(req, res, next) {
 
 app.get('/', (req,res) => {
 	res.render('index', {
+		navLinks: navLinks,
+		currentURL: url.parse(req.url).pathname,
 		authenticated: req.session.authenticated,
 		username: req.session.username
 	});    
@@ -127,24 +139,16 @@ app.get('/nosql-injection', async (req,res) => {
 });
 
 app.get('/signup', (req,res) => {
-    // res.render("signup");
-		// var html = `
-    // create user
-    // <form action='/submitUser' method='post'>
-    // <input name='username' type='text' placeholder='username'><br>
-    // <input name='email' type='text' placeholder='email'><br>
-    // <input name='password' type='password' placeholder='password'><br>
-    // <button>Submit</button>
-    // </form>
-    // `;
-    // res.send(html);
 		res.render("signup");
 
 });
 
 app.get('/login', (req,res) => {
 
-		res.render("login");
+		res.render("login", {
+			navLinks: navLinks,
+			currentURL: url.parse(req.url).pathname
+		});
 });
 
 app.post('/submitUser', async (req,res) => {
@@ -263,6 +267,8 @@ app.get('/members', (req, res) => {
     }
 
 		res.render('AI', {
+			navLinks: navLinks,
+			currentURL: url.parse(req.url).pathname,
 			authenticated: req.session.authenticated,
 			username: req.session.username
 		});   
@@ -275,7 +281,11 @@ app.get('/logout', (req,res) => {
 
 app.get('/admin', sessionValidation, adminAuthorization, async (req,res) => {
 	const result = await userCollection.find().project({username: 1, user_type: 1}).toArray();	
-	res.render("admin", {users: result});
+	res.render("admin", {
+		users: result, 
+		navLinks: navLinks,
+		currentURL: url.parse(req.url).pathname
+	});
 
 });
 
@@ -301,7 +311,10 @@ app.use(express.static(__dirname + "/public"));
 
 app.get("*", (req,res) => {
 	res.status(404);
-	res.render("404");
+	res.render("404", {
+		navLinks: navLinks,
+		currentURL: url.parse(req.url).pathname
+	});
 	// res.send("Page not found - 404");
 
 })
