@@ -51,10 +51,6 @@ const handleCardClick = function () {
   }
 };
 
-
-
-
-
 const handleMatchedCards = () => {
   firstCard.addClass("matched");
   secondCard.addClass("matched");
@@ -63,6 +59,8 @@ const handleMatchedCards = () => {
   secondCard.off("click");
 
   pairsMatched++;
+  updateGameStats(); 
+
   firstCard = undefined;
   secondCard = undefined;
 
@@ -78,7 +76,6 @@ const flipCardsBack = () => {
   firstCard = undefined;
   secondCard = undefined;
 };
-
 
 const flipCards = () => {
   setTimeout(() => {
@@ -99,12 +96,19 @@ const handleGameWin = () => {
     alert("Congratulations! You've won the game!");
   }, 500);};
 
-const updateGameStats = () => {
-  $("#clicks").text("Clicks: " + clicks);
-  $("#pairs-left").text("Pairs Left: " + (totalMatches - pairsMatched));
-  $("#pairs-matched").text("Pairs Matched: " + pairsMatched);
-  $("#total-pairs").text("Total Pairs: " + totalMatches);
-};
+  const updateGameStats = () => {
+    console.log("Updating game stats");
+    console.log("Clicks: ", clicks);
+    console.log("Pairs Left: ", totalMatches - pairsMatched);
+    console.log("Pairs Matched: ", pairsMatched);
+    console.log("Total Pairs: ", totalMatches);
+  
+    $("#clicks").text("Clicks: " + clicks);
+    $("#pairs-left").text("Pairs Left: " + (totalMatches - pairsMatched));
+    $("#pairs-matched").text("Pairs Matched: " + pairsMatched);
+    $("#total-pairs").text("Total Pairs: " + totalMatches);
+  };
+  
 
 const resetGameStats = () => {
   clicks = 0;
@@ -165,10 +169,8 @@ const setup = () => {
 };
 
 const generateCards = (count) => {
-  // Remove all existing cards
   $(".card").remove();
 
-  // Generate new cards
   for (let i = 0; i < count; i++) {
     const card = `
     <div class="card">
@@ -179,16 +181,11 @@ const generateCards = (count) => {
   }
 };
 
-
-
-
 const loadCards = () => {
   $.ajax({
     url: "https://pokeapi.co/api/v2/pokemon?limit=151",
     success: (response) => {
       const pokemon = response.results;
-
-      // Pick random unique Pokémon
       const randomPokemon = [];
       while (randomPokemon.length < totalMatches) {
         const index = Math.floor(Math.random() * pokemon.length);
@@ -198,13 +195,11 @@ const loadCards = () => {
         }
       }
 
-      // Duplicate the random Pokémon to have enough cards
       const cardPokemon = [];
       for (let i = 0; i < cardsCount; i++) {
         cardPokemon.push(randomPokemon[i % totalMatches]);
       }
 
-      // Shuffle the card Pokémon array
       for (let i = cardPokemon.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [cardPokemon[i], cardPokemon[j]] = [cardPokemon[j], cardPokemon[i]];
