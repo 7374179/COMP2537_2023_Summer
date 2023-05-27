@@ -1,0 +1,14 @@
+<%- include("templates/header") %>
+
+<% if (!authenticated) { %>
+  <a class="btn btn-warning rounded-pill px-5" href="/signup">Sign up</button></a></br></br>
+  <a class="btn btn-primary rounded-pill px-5" href="/login">Log in</button></a>
+    <!-- <a class="btn btn-warning rounded-pill px-3" href="/dne">404</button>
+      <a class="btn btn-primary rounded-pill px-3" href="/cat">Cats</button> -->
+<% } else { %>
+  Hello, <%= username %></br>
+  <a class="btn btn-warning rounded-pill px-5" href="/members">Go to Members Area</button></a></br></br>
+  <a class="btn btn-primary rounded-pill px-5" href="/logout">Log Out</button></a>
+<% } %>
+
+<%- include("templates/footer") %>

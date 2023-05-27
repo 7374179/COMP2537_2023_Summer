@@ -1,0 +1,20 @@
+<%- include("templates/header") %> 
+<h1>AI</h1>
+
+<% if (authenticated) { %>
+  <div>Hello, <%= username %></div>
+  <div class="row mb-3 text-center">
+    <div class="col-md-4 themed-grid-col"><img class="img-fluid" src="/AI_1.jpg"></div>
+    <div class="col-md-4 themed-grid-col"><img class="img-fluid" src="/AI_2.png"></div>
+    <div class="col-md-4 themed-grid-col"><img class="img-fluid" src="/AI_3.png"></div>
+  </div>
+  <!-- <div><a href="/logout"><button>Log out</button></a></div> -->
+  <!-- <button class="btn btn-lg btn-warning" href="/logout" type="submit">Log out</button> -->
+  <a class="btn btn-primary rounded-pill px-5" href="/logout">Log Out</button></a>
+
+
+<% } else { %>
+  <p>Please log in to view this page.</p>
+<% } %>
+
+<%- include("templates/footer") %>
