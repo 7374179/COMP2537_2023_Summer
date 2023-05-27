@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 
+// const port = 27017;
 const port = process.env.PORT || 3000;
 
 
@@ -16,7 +17,7 @@ const app = express();
 const Joi = require("joi");
 
 
-const expireTime = 60 * 60 * 1000; //expires after 1 hour  (minutes * seconds * millis)
+const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -35,7 +36,9 @@ const userCollection = database.db(mongodb_database).collection('users');
 app.use(express.urlencoded({extended: false}));
 
 var mongoStore = MongoStore.create({
+	// mongoUrl: `mongodb+srv://${Taehyuk}:${Wjdxogur1!}@${cluster0.q0vmt7t.mongodb.net}/sessions`,
     mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/sessions`,
+
 	crypto: {
 		secret: mongodb_session_secret
 	}
@@ -99,6 +102,38 @@ app.get('/nosql-injection', async (req,res) => {
     res.send(`<h1>Hello ${username}</h1>`);
 });
 
+app.get('/about', (req,res) => {
+    var color = req.query.color;
+
+    res.send("<h1 style='color:"+color+";'>Patrick Guichon</h1>");
+});
+
+app.get('/contact', (req,res) => {
+    var missingEmail = req.query.missing;
+    var html = `
+        email address:
+        <form action='/submitEmail' method='post'>
+            <input name='email' type='text' placeholder='email'>
+            <button>Submit</button>
+        </form>
+    `;
+    if (missingEmail) {
+        html += "<br> email is required";
+    }
+    res.send(html);
+});
+
+app.post('/submitEmail', (req,res) => {
+    var email = req.body.email;
+    if (!email) {
+        res.redirect('/contact?missing=1');
+    }
+    else {
+        res.send("Thanks for subscribing with your email: "+email);
+    }
+});
+
+
 app.get('/signup', (req,res) => {
     var html = `
     create user
@@ -110,6 +145,7 @@ app.get('/signup', (req,res) => {
     </form>
     `;
     res.send(html);
+    // res.redirect('/');
 });
 
 app.get('/login', (req,res) => {
@@ -117,11 +153,12 @@ app.get('/login', (req,res) => {
     log in
     <form action='/loggingin' method='post'>
     <input name='email' type='text' placeholder='email'><br>
-    <input name='password' type='password' placeholder='password'><br>
+    <input name='password' type='password' placeholder='password'>
     <button>Submit</button>
     </form>
     `;
     res.send(html);
+    // res.redirect('/');
 });
 
 app.post('/submitUser', async (req,res) => {
@@ -142,9 +179,11 @@ app.post('/submitUser', async (req,res) => {
 	   console.log(validationResult.error);
        var html = `
        ${validationResult.error.details[0].message}
-       <div><a href="/signup">signup</a></div>
+       <div><a href="/signup"><button>signup</button></a></div>
    `;
       res.send(html);
+
+	//    res.redirect("/signup");
 	   return;
    }
 
@@ -158,11 +197,9 @@ app.post('/submitUser', async (req,res) => {
         });
 	console.log("Inserted user");
 
-    req.session.authenticated = true; 
-    req.session.username = username;
-	req.session.email = email;
-
-    res.redirect("/members");
+    // var html = "successfully created user";
+    // res.send(html);    
+    res.redirect("/login");
 });
 
 app.post('/loggingin', async (req,res) => {
@@ -174,6 +211,12 @@ app.post('/loggingin', async (req,res) => {
 	const validationResult = schema.validate(email);
 	if (validationResult.error != null) {
 	   console.log(validationResult.error);
+//        var html = `
+//        ${validationResult.error.details[0].message}
+//        <div><a href="/login"><button>login</button></a></div>
+//    `;
+//      res.send(html);
+
 	   res.redirect("/login");
 	   return;
 	}
@@ -188,6 +231,8 @@ app.post('/loggingin', async (req,res) => {
         <div><a href="/login"><button>login</button></a></div>
     `;
        res.send(html);
+
+		// res.redirect("/login");
 		return;
 	}
 	if (await bcrypt.compare(password, result[0].password)) {
@@ -197,12 +242,9 @@ app.post('/loggingin', async (req,res) => {
 		req.session.email = email;
 		req.session.cookie.maxAge = expireTime;
 
-        if(req.session.redirectTo){
-			res.redirect(req.session.redirectTo);
-			delete req.session.redirectTo;
-		}else{
-			res.redirect('/members');
-		}
+		// res.redirect('/loggedIn');
+        res.redirect('/');
+
 		return;
 	}
 	else {
@@ -212,6 +254,7 @@ app.post('/loggingin', async (req,res) => {
         <div><a href="/login"><button>login</button></a></div>
     `;
         res.send(html);
+		// res.redirect("/login");
 		return;
 	}
 });
@@ -228,7 +271,7 @@ app.get('/loggedin', (req,res) => {
 
 app.get('/members', (req, res) => {
     if(!req.session.username){
-        res.redirect('/login');
+        res.redirect('/');
         return;
     }
 
@@ -251,7 +294,7 @@ app.get('/members', (req, res) => {
         Hello, ${req.session.username}
         <div>${imageHTML}</div><br>
 
-        <div><a href="/logout"><button>Sign Out</button></a></div>
+        <div><a href="/logout"><button>Log Out</button></a></div>
         `;
         res.send(html);
         return;
@@ -260,8 +303,29 @@ app.get('/members', (req, res) => {
 
 app.get('/logout', (req,res) => {
 	req.session.destroy();
+    // var html = `
+    // You are logged out.
+    // `;
+    // res.send(html);
     res.redirect('/');
 });
+
+
+app.get('/cat/:id', (req,res) => {
+
+    var cat = req.params.id;
+
+    if (cat == 1) {
+        res.send("Fluffy: <img src='/fluffy.gif' style='width:250px;'>");
+    }
+    else if (cat == 2) {
+        res.send("Socks: <img src='/socks.gif' style='width:250px;'>");
+    }
+    else {
+        res.send("Invalid cat id: "+cat);
+    }
+});
+
 
 app.use(express.static(__dirname + "/public"));
 

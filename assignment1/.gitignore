@@ -1,3 +1,7 @@
 /node_modules
+<<<<<<< HEAD
+=======
+/samplecode
+>>>>>>> 7374179/COMP2537_Demo_Code_2/main
 package-lock.json
 .env

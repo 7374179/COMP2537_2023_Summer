@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "COMP2537_2023_Summer",
   "version": "1.0.0",
   "description": "",
@@ -16,7 +17,24 @@
     "url": "https://github.com/7374179/COMP2537_2023_Summer/issues"
   },
   "homepage": "https://github.com/7374179/COMP2537_2023_Summer#readme",
+=======
+>>>>>>> 7374179/COMP2537_Demo_Code_2/main
   "dependencies": {
-    "express": "^4.17.1"
+    "bcrypt": "^5.1.0",
+    "connect-mongo": "^5.0.0",
+    "dotenv": "^16.0.3",
+<<<<<<< HEAD
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "joi": "^17.9.2"
+=======
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "joi": "^17.9.2",
+    "mongodb": "^5.3.0",
+    "nodemon": "^2.0.22",
+    "utils": "^0.3.1"
+>>>>>>> 7374179/COMP2537_Demo_Code_2/main
   }
 }
