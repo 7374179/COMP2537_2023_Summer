@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Memory Card Game</h1>
+
+    <div id="header">
+        <span id="clicks">Clicks: 0</span>
+        <span id="pairs-left">Pairs Left: 3</span>
+        <span id="pairs-matched">Pairs Matched: 0</span>
+        <span id="total-pairs">Total Pairs: 3</span>
+        <span id="timer">Time: 0:00</span>
+      </div>
+
+      <div id="controls">
+        <button id="start-btn">Start</button>
+        <button id="reset-btn">Reset</button>
+      </div>
+
+      <button id="easy-btn">Easy</button>
+      <button id="medium-btn">Medium</button>
+      <button id="hard-btn">Hard</button>
+
+      <button id="power-up-btn">Power-Up</button>
+      <button id="toggle-dark-mode-btn">Toggle Dark Mode</button>
+
+
+
+<div id="game_grid">
+    <div class="card">
+        <img class="front_face" alt="" src="">
+        <img class="back_face" src="back.webp" alt="">
+    </div>
+    <div class="card">
+        <img class="front_face" alt="" src="">
+        <img class="back_face" src="back.webp" alt="">
+    </div>
+    <div class="card">
+        <img class="front_face" alt="" src="">
+        <img class="back_face" src="back.webp" alt="">
+    </div>
+    <div class="card">
+        <img class="front_face" alt="" src="">
+        <img class="back_face" src="back.webp" alt="">
+    </div>
+    <div class="card">
+        <img class="front_face" alt="" src="">
+        <img class="back_face" src="back.webp" alt="">
+    </div>
+    <div class="card">
+        <img class="front_face" alt="" src="">
+        <img class="back_face" src="back.webp" alt="">
+    </div>
+</div>
+<br>
+<div style="text-align: center;">
+    <button onclick="window.location.href='index.html'"> reset </button>
+</div>
+
+<!-- Move the JavaScript code to the end of the body -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="index.js"></script>
+</body>
+
+</html>
